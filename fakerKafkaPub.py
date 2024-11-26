@@ -3,6 +3,8 @@ import random
 from datetime import datetime, timedelta
 from kafka import KafkaProducer
 import json
+from bson import json_util
+
 
 fake = Faker()
 fake.seed_instance(0)
@@ -39,4 +41,6 @@ for transaction in transactions:
 
 producer = KafkaProducer(bootstrap_servers='localhost:9092')
 
-# producer.send('transactions', b'Hello, Kafka!')
+for transaction in transactions:
+    json_transaction = json.dumps(transaction,  default=json_util.default).encode('utf-8')
+    producer.send('transactions', json_transaction)
