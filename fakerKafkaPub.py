@@ -14,6 +14,7 @@ def generate_transaction():
     
     return {
         "transaction_id": fake.uuid4(),
+        "customer_name":fake.name(),
         "date": date.isoformat(),
         "amount": amount,
         "description": fake.bs(),
@@ -31,19 +32,19 @@ def on_send_error(excp):
     log.error('I am an errback', exc_info=excp)
 
 # Generate 10 transactions
-transactions = [generate_transaction() for _ in range(10)]
+transactions = [generate_transaction() for _ in range(100)]
 
 # Sort transactions by date
 transactions.sort(key=lambda x: x['date'])
 
-#for transaction in transactions:
+for transaction in transactions:
     # print(f"Date: {transaction['date']}")
     # print(f"Amount: {transaction['amount']}")
     # print(f"Description: {transaction['description']}")
     # print(f"Merchant: {transaction['merchant']}")
     # print(f"Category: {transaction['category']}")
-    # print(transaction)
-    # print('\n')
+    print(transaction)
+    print('\n')
 
 producer = KafkaProducer(
     bootstrap_servers='localhost:9092',
