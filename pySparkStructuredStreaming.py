@@ -1,6 +1,9 @@
 import os
 import sys
 from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import functions as F
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
 
 os.environ['PYSPARK_PYTHON'] = sys.executable
 os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
@@ -47,16 +50,26 @@ from pyspark.sql.functions import from_json
 
 json_expanded_df = json_df.withColumn("value", from_json(json_df["value"], json_schema)).select("value.*")
 
-writing_df=json_expanded_df.writeStream \
-    .format("console") \
-    .option("checkpointLocation","checkpoint_dir") \
-    .outputMode("complete") \
-    .start()
+print('test')
 
-# Start the streaming application to run until the following happens
-# 1. Exception in the running program
-# 2. Manual Interruption
-writing_df.awaitTermination()
+def write_streaming(df, epoch_id):
+    df.write \
+        .format("jdbc") \
+        .mode("append") \
+        .option("url", f"jdbc:postgresql://localhost:5432/postgres") \
+        .option("dbtable", "transactions") \
+        .option("user", 'postgres') \
+        .option("password", 'postgres') \
+        .option("driver", "org.postgresql.Driver")\
+        .save()
+    print("data loaded")
 
-writing_df.show
+# Define a query to postgre table: employees
+
+
+streaming_query = json_expanded_df.writeStream \
+    .foreachBatch(write_streaming) \
+    .start()\
+    .awaitTermination()
+
 

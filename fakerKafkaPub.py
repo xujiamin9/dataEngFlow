@@ -7,6 +7,8 @@ import json
 fake = Faker()
 fake.seed_instance(random.randint(0, 20))
 
+trasact_num = 10
+
 def generate_transaction():
     amount = round(random.uniform(10, 5000), 2)
     
@@ -31,8 +33,8 @@ def on_send_success(record_metadata):
 def on_send_error(excp):
     log.error('I am an errback', exc_info=excp)
 
-# Generate 10 transactions
-transactions = [generate_transaction() for _ in range(100)]
+# Generate transactions
+transactions = [generate_transaction() for _ in range(10)]
 
 # Sort transactions by date
 transactions.sort(key=lambda x: x['date'])
